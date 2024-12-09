@@ -1,6 +1,6 @@
 @ATDashboard_HostAddress = http://localhost:5261
 
-GET {{ATDashboard_HostAddress}}/weatherforecast/
+POST {{ATDashboard_HostAddress}}/customer/
 Accept: application/json
 
 ###
