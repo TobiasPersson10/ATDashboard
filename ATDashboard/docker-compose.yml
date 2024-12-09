@@ -1,0 +1,6 @@
+﻿services:
+  atdashboard:
+    image: atdashboard
+    build:
+      context: .
+      dockerfile: ATDashboard/Dockerfile
