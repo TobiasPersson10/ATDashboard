@@ -1,4 +1,6 @@
+using ATDashboard.Configuration;
 using ATDashboard.Services;
+using Microsoft.Extensions.Options;
 
 namespace ATDashboard;
 
@@ -7,21 +9,27 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         // Add configuration
-        string? url = builder.Configuration["ExternalApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(builder.Configuration),"Failed reading configuration");
+        builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApi"));
         // Add services to the container.
-        builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+        builder.Services.AddHttpClient<IAuthService, AuthService>((serviceprovider, client) =>
         {
-            client.BaseAddress = new Uri(url);
+            var externalApiSettings = serviceprovider.GetRequiredService<IOptions<ExternalApiSettings>>().Value;
+            if (string.IsNullOrEmpty(externalApiSettings.BaseUrl))
+            {
+                throw new InvalidOperationException("External API BaseUrl is not configured.");
+            }
+
+            client.BaseAddress = new Uri(externalApiSettings.BaseUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
-        
+
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

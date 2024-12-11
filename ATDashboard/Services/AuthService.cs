@@ -1,37 +1,48 @@
 ﻿using System.Text;
 using System.Text.Json;
+using ATDashboard.Configuration;
+using ATDashboard.Models;
 using ATDashboard.Models.Requests;
+using Microsoft.Extensions.Options;
 
 namespace ATDashboard.Services;
 
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
-    public AuthService(HttpClient httpClient, IConfiguration configuration)
+    private readonly ExternalApiSettings _externalApiSettings;
+
+    public AuthService(HttpClient httpClient, IOptions<ExternalApiSettings> options)
     {
         _httpClient = httpClient;
+        _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
     }
-    
-    public async Task LoginAsync(CancellationToken cancellationToken = default)
+
+    public async Task<LoginResponse?> LoginAsync(CancellationToken cancellationToken = default)
     {
         var loginRequest = new LoginRequest
         {
-            username = _configuration["ExternalApi:UserName"] ?? throw new ArgumentNullException($"Failed reading configuration"),
-            password = _configuration["ExternalApi:Password"] ?? throw new ArgumentNullException($"Failed reading configuration")
+            username = _externalApiSettings.UserName,
+            password = _externalApiSettings.Password,
         };
 
         try
         {
-            var content = SerializeToJsonContent(loginRequest);
+            var requestJson = JsonSerializer.Serialize(loginRequest);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("Login", content, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
                 await LogErrorAsync(response);
+                //throw error
             }
 
             response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            var loginResponse = JsonSerializer.Deserialize<LoginResponse>(json);
+            return loginResponse;
         }
         catch (Exception ex)
         {
@@ -39,12 +50,6 @@ public class AuthService : IAuthService
             Console.WriteLine($"An exception occurred: {ex.Message}");
             throw;
         }
-    }
-
-    private static StringContent SerializeToJsonContent<T>(T data)
-    {
-        var json = JsonSerializer.Serialize(data);
-        return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
     private static async Task LogErrorAsync(HttpResponseMessage response)
@@ -57,5 +62,5 @@ public class AuthService : IAuthService
 
 public interface IAuthService
 {
-    Task LoginAsync(CancellationToken ct = default);
+    Task<LoginResponse?> LoginAsync(CancellationToken ct = default);
 }
