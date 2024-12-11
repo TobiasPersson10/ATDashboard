@@ -7,7 +7,8 @@ namespace ATDashboard.Services;
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
-    public AuthService(HttpClient httpClient)
+    private readonly IConfiguration _configuration;
+    public AuthService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
     }
@@ -16,8 +17,8 @@ public class AuthService : IAuthService
     {
         var loginRequest = new LoginRequest
         {
-            username = "***",
-            password = "***"
+            username = _configuration["ExternalApi:UserName"] ?? throw new ArgumentNullException($"Failed reading configuration"),
+            password = _configuration["ExternalApi:Password"] ?? throw new ArgumentNullException($"Failed reading configuration")
         };
 
         try

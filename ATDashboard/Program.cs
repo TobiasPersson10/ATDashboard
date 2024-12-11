@@ -8,14 +8,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         
+        // Add configuration
+        string? url = builder.Configuration["ExternalApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(builder.Configuration),"Failed reading configuration");
         // Add services to the container.
         builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
         {
-            client.BaseAddress = new Uri("******");
+            client.BaseAddress = new Uri(url);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
-        
-        
         
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
