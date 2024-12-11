@@ -4,7 +4,6 @@ public record LoginResponseDTO
 {
     public string? UserFullname { get; set; }
     public string? IndividFullname { get; set; }
-    public string? Dst { get; set; }
     public string? Email { get; set; }
 
     public static LoginResponseDTO ToDTO(LoginResponse? fromJson)
@@ -13,8 +12,7 @@ public record LoginResponseDTO
         {
             UserFullname = fromJson?.UserFullname,
             IndividFullname = fromJson?.IndividFullname,
-            Dst = fromJson?.Dst,
-            Email = fromJson?.Email
+            Email = fromJson?.Email,
         };
     }
 }
