@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using ATDashboard.Models.Requests;
 
 namespace ATDashboard.Services;
@@ -11,31 +12,49 @@ public class AuthService : IAuthService
         _httpClient = httpClient;
     }
     
-    public async Task LoginAsync()
+    public async Task LoginAsync(CancellationToken cancellationToken = default)
     {
-        var body = new LoginRequest
+        var loginRequest = new LoginRequest
         {
-            password = "***",
-            username = "***"
+            username = "***",
+            password = "***"
         };
 
-        var json = JsonSerializer.Serialize(body);
-        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-    
-        var response = await _httpClient.PostAsync("Login", content);
-        
-        var responseContent = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            // Log the response status code and content for debugging
-            Console.WriteLine($"Error: {response.StatusCode}");
-            Console.WriteLine($"Response Content: {responseContent}");
+            var content = SerializeToJsonContent(loginRequest);
+            var response = await _httpClient.PostAsync("Login", content, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                await LogErrorAsync(response);
+            }
+
+            response.EnsureSuccessStatusCode();
         }
-        response.EnsureSuccessStatusCode();
+        catch (Exception ex)
+        {
+            // Log or rethrow depending on error handling strategy
+            Console.WriteLine($"An exception occurred: {ex.Message}");
+            throw;
+        }
+    }
+
+    private static StringContent SerializeToJsonContent<T>(T data)
+    {
+        var json = JsonSerializer.Serialize(data);
+        return new StringContent(json, Encoding.UTF8, "application/json");
+    }
+
+    private static async Task LogErrorAsync(HttpResponseMessage response)
+    {
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error: {response.StatusCode}");
+        Console.WriteLine($"Response Content: {responseContent}");
     }
 }
 
 public interface IAuthService
 {
-    Task LoginAsync();
+    Task LoginAsync(CancellationToken ct = default);
 }
