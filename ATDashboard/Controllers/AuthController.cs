@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost]
+    [HttpGet]
     public async Task<IActionResult> Login(CancellationToken cancellationToken)
     {
         var result = await _authService.LoginAsync(cancellationToken);

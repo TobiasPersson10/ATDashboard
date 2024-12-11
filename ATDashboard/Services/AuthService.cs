@@ -3,6 +3,7 @@ using System.Text.Json;
 using ATDashboard.Configuration;
 using ATDashboard.Models;
 using ATDashboard.Models.Requests;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace ATDashboard.Services;
@@ -11,11 +12,19 @@ public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
     private readonly ExternalApiSettings _externalApiSettings;
+    private readonly IMemoryCache _cache;
 
-    public AuthService(HttpClient httpClient, IOptions<ExternalApiSettings> options)
+    private const string TokenCacheKey = "AuthTokenDst";
+
+    public AuthService(
+        HttpClient httpClient,
+        IOptions<ExternalApiSettings> options,
+        IMemoryCache cache
+    )
     {
         _httpClient = httpClient;
         _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _cache = cache;
     }
 
     public async Task<LoginResponse?> LoginAsync(CancellationToken cancellationToken = default)
@@ -42,6 +51,8 @@ public class AuthService : IAuthService
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(json);
+            if (loginResponse is not null)
+                _cache.Set(TokenCacheKey, loginResponse.Dst);
             return loginResponse;
         }
         catch (Exception ex)
@@ -50,6 +61,12 @@ public class AuthService : IAuthService
             Console.WriteLine($"An exception occurred: {ex.Message}");
             throw;
         }
+    }
+
+    public string? GetAccessToken()
+    {
+        _cache.TryGetValue(TokenCacheKey, out string? token);
+        return token;
     }
 
     private static async Task LogErrorAsync(HttpResponseMessage response)
@@ -63,4 +80,5 @@ public class AuthService : IAuthService
 public interface IAuthService
 {
     Task<LoginResponse?> LoginAsync(CancellationToken ct = default);
+    string? GetAccessToken();
 }
