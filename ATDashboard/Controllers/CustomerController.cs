@@ -1,4 +1,6 @@
-﻿using ATDashboard.Models.Requests;
+﻿using ATDashboard.Models;
+using ATDashboard.Models.DTO;
+using ATDashboard.Models.Requests;
 using ATDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +29,12 @@ public class CustomerController : ControllerBase
             return Unauthorized("Token is not loaded, attempt a login");
         }
 
-        return Ok("GotInfo");
+        var customerInfo = await _customerService.GetCustomerInfo(customerInfoRequest);
+        if (customerInfo is null)
+            return NotFound();
+
+        var dto = CustomerInfoDTO.ToDomain(customerInfo);
+        return Ok(dto);
         // Call customerService
     }
 }

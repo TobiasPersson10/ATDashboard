@@ -37,9 +37,14 @@ public class AuthService : IAuthService
 
         try
         {
-            var requestJson = JsonSerializer.Serialize(loginRequest);
-            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("Login", content, cancellationToken);
+            //var requestJson = JsonSerializer.Serialize(loginRequest);
+            //var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            //HttpResponseMessage response = await _httpClient.PostAsync("Login", content, cancellationToken);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
+                "Login",
+                loginRequest,
+                cancellationToken
+            );
 
             if (!response.IsSuccessStatusCode)
             {

@@ -1,4 +1,4 @@
-﻿namespace ATDashboard.Models;
+﻿namespace ATDashboard.Models.DTO;
 
 public class CustomerInfoDTO
 {
@@ -18,9 +18,9 @@ public class CustomerInfoDTO
     public string Type { get; set; }
     public string IsPoa { get; set; }
 
-    public CustomerInfoDTO ToDomain(CustomerInfo? customerInfo)
+    public static CustomerInfoDTO ToDomain(CustomerInfo? customerInfo)
     {
-        return new()
+        return new CustomerInfoDTO
         {
             Country = customerInfo?.Country,
             CountryCode = customerInfo?.CountryCode,
