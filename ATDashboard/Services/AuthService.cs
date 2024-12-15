@@ -10,19 +10,19 @@ namespace ATDashboard.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly HttpClient _httpClient;
+    private readonly SkeKraftClient _client;
     private readonly ExternalApiSettings _externalApiSettings;
     private readonly IMemoryCache _cache;
 
     private const string TokenCacheKey = "AuthTokenDst";
 
     public AuthService(
-        HttpClient httpClient,
+        SkeKraftClient client,
         IOptions<ExternalApiSettings> options,
         IMemoryCache cache
     )
     {
-        _httpClient = httpClient;
+        _client = client;
         _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
         _cache = cache;
     }
@@ -37,10 +37,7 @@ public class AuthService : IAuthService
 
         try
         {
-            //var requestJson = JsonSerializer.Serialize(loginRequest);
-            //var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-            //HttpResponseMessage response = await _httpClient.PostAsync("Login", content, cancellationToken);
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
+            HttpResponseMessage response = await _client.Client.PostAsJsonAsync(
                 "Login",
                 loginRequest,
                 cancellationToken

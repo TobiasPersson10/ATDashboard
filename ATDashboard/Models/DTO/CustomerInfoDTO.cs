@@ -18,8 +18,9 @@ public class CustomerInfoDTO
     public string Type { get; set; }
     public string IsPoa { get; set; }
 
-    public static CustomerInfoDTO ToDomain(CustomerInfo? customerInfo)
+    public static CustomerInfoDTO ToDomain(CustomerInfoResponse? response)
     {
+        var customerInfo = response?.CustomerInfo;
         return new CustomerInfoDTO
         {
             Country = customerInfo?.Country,
@@ -36,7 +37,7 @@ public class CustomerInfoDTO
             Paymode = customerInfo.Paymode,
             PerOrgNr = customerInfo.PerOrgNr,
             Type = customerInfo.Type,
-            IsPoa = customerInfo.IsPoa
+            IsPoa = customerInfo.IsPoa,
         };
     }
 }

@@ -7,26 +7,26 @@ namespace ATDashboard.Services;
 
 public class CustomerService : ICustomerService
 {
-    private readonly HttpClient _httpClient;
+    private readonly SkeKraftClient _client;
     private readonly IMemoryCache _cache;
 
-    public CustomerService(HttpClient httpClient, IMemoryCache cache)
+    public CustomerService(SkeKraftClient client, IMemoryCache cache)
     {
-        _httpClient = httpClient;
+        _client = client;
         _cache = cache;
     }
 
-    public async Task<CustomerInfo?> GetCustomerInfo(CustomerInfoRequest customerInfoRequest)
+    public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("Customer", customerInfoRequest);
-
+        var response = await _client.Client.PostAsJsonAsync("GetCustomerInfo", request);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();
-        var customerInfo = JsonSerializer.Deserialize<CustomerInfo>(json);
+
+        var customerInfo = JsonSerializer.Deserialize<CustomerInfoResponse>(json);
         if (customerInfo != null)
         {
-            _cache.Set(customerInfoRequest.DST, customerInfo);
+            _cache.Set(request.DST, customerInfo);
         }
 
         return customerInfo;
@@ -35,5 +35,5 @@ public class CustomerService : ICustomerService
 
 public interface ICustomerService
 {
-    Task<CustomerInfo?> GetCustomerInfo(CustomerInfoRequest customerInfoRequest);
+    Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request);
 }

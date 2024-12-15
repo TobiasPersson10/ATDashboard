@@ -16,7 +16,8 @@ public class Program
         );
         // Add services to the container.
         builder.Services.AddMemoryCache();
-        builder.Services.AddHttpClient<IAuthService, AuthService>(
+        //builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient<SkeKraftClient>(
             (serviceprovider, client) =>
             {
                 var externalApiSettings = serviceprovider
@@ -32,6 +33,7 @@ public class Program
             }
         );
 
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<ICustomerService, CustomerService>();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -41,11 +43,11 @@ public class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        // if (app.Environment.IsDevelopment())
+        // {
+        //     app.UseSwagger();
+        //     app.UseSwaggerUI();
+        // }
 
         app.UseHttpsRedirection();
 

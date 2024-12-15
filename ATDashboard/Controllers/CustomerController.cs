@@ -19,8 +19,8 @@ public class CustomerController : ControllerBase
         _customerService = customerService;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Get([FromBody] CustomerInfoRequest customerInfoRequest)
+    [HttpGet]
+    public async Task<IActionResult> Get()
     {
         // Check if logged in
         var token = _authService.GetAccessToken();
@@ -29,7 +29,14 @@ public class CustomerController : ControllerBase
             return Unauthorized("Token is not loaded, attempt a login");
         }
 
-        var customerInfo = await _customerService.GetCustomerInfo(customerInfoRequest);
+        var loginRequest = new CustomerInfoRequest()
+        {
+            DST = token,
+            customerId = "",
+            source = "All",
+        };
+
+        var customerInfo = await _customerService.GetCustomerInfo(loginRequest);
         if (customerInfo is null)
             return NotFound();
 
@@ -37,4 +44,11 @@ public class CustomerController : ControllerBase
         return Ok(dto);
         // Call customerService
     }
+}
+
+public class RootObject
+{
+    public string DST { get; set; }
+    public string customerId { get; set; }
+    public string source { get; set; }
 }
