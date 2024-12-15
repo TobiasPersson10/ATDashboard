@@ -1,11 +1,24 @@
-﻿namespace ATDashboard;
+﻿using ATDashboard.Models.Requests;
 
-public class SkeKraftClient
+namespace ATDashboard;
+
+public class SkeKraftClient(HttpClient httpClient)
 {
-    public HttpClient Client;
-
-    public SkeKraftClient(HttpClient client)
+    public Task<HttpResponseMessage> GetCustomerInfoAsync(
+        string uri,
+        CustomerInfoRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
-        Client = client;
+        return httpClient.PostAsJsonAsync(uri, request, cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> LoginAsync(
+        string uri,
+        LoginRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return httpClient.PostAsJsonAsync(uri, request, cancellationToken);
     }
 }

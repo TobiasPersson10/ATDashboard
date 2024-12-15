@@ -1,5 +1,4 @@
-﻿using ATDashboard.Models;
-using ATDashboard.Models.DTO;
+﻿using ATDashboard.Models.DTO;
 using ATDashboard.Models.Requests;
 using ATDashboard.Services;
 using Microsoft.AspNetCore.Mvc;

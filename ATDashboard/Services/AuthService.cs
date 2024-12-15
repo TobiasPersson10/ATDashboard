@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using ATDashboard.Configuration;
 using ATDashboard.Models;
 using ATDashboard.Models.Requests;
@@ -37,11 +36,7 @@ public class AuthService : IAuthService
 
         try
         {
-            HttpResponseMessage response = await _client.Client.PostAsJsonAsync(
-                "Login",
-                loginRequest,
-                cancellationToken
-            );
+            var response = await _client.LoginAsync("Login", loginRequest, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {

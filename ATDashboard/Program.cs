@@ -16,7 +16,6 @@ public class Program
         );
         // Add services to the container.
         builder.Services.AddMemoryCache();
-        //builder.Services.AddHttpClient();
         builder.Services.AddHttpClient<SkeKraftClient>(
             (serviceprovider, client) =>
             {

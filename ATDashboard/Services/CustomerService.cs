@@ -18,7 +18,7 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request)
     {
-        var response = await _client.Client.PostAsJsonAsync("GetCustomerInfo", request);
+        var response = await _client.GetCustomerInfoAsync("GetCustomerInfo", request);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();
