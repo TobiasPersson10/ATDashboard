@@ -1,6 +1,8 @@
-﻿namespace ATDashboard.Models.DTO;
+﻿using ATDashboard.Models.SkeKraftModels;
 
-public class CustomerInfoDTO
+namespace ATDashboard.Models.DTO;
+
+public class CustomerInfoDto
 {
     public string? Country { get; set; }
     public string CountryCode { get; set; }
@@ -18,10 +20,10 @@ public class CustomerInfoDTO
     public string Type { get; set; }
     public string IsPoa { get; set; }
 
-    public static CustomerInfoDTO ToDomain(CustomerInfoResponse? response)
+    public static CustomerInfoDto ToCustomerInfoDto(CustomerInfoResponse? response)
     {
         var customerInfo = response?.CustomerInfo;
-        return new CustomerInfoDTO
+        return new CustomerInfoDto
         {
             Country = customerInfo?.Country,
             CountryCode = customerInfo?.CountryCode,

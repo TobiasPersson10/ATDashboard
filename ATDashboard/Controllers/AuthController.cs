@@ -22,6 +22,6 @@ public class AuthController : ControllerBase
         if (result is null)
             return NoContent();
 
-        return Ok(LoginResponseDTO.ToDTO(result));
+        return Ok(LoginResponseDto.ToLoginResponseDto(result));
     }
 }

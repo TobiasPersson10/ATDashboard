@@ -11,6 +11,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add configuration
+
         builder.Services.Configure<ExternalApiSettings>(
             builder.Configuration.GetSection("ExternalApi")
         );
@@ -42,11 +43,11 @@ public class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        // if (app.Environment.IsDevelopment())
-        // {
-        //     app.UseSwagger();
-        //     app.UseSwaggerUI();
-        // }
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
         app.UseHttpsRedirection();
 

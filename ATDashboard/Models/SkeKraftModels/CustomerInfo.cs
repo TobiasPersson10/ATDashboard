@@ -1,4 +1,4 @@
-﻿namespace ATDashboard.Models;
+﻿namespace ATDashboard.Models.SkeKraftModels;
 
 public class CustomerInfo
 {

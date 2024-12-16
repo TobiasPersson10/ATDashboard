@@ -1,14 +1,14 @@
 ﻿namespace ATDashboard.Models.DTO;
 
-public record LoginResponseDTO
+public record LoginResponseDto
 {
     public string? UserFullname { get; set; }
     public string? IndividFullname { get; set; }
     public string? Email { get; set; }
 
-    public static LoginResponseDTO ToDTO(LoginResponse? fromJson)
+    public static LoginResponseDto ToLoginResponseDto(LoginResponse? fromJson)
     {
-        return new LoginResponseDTO()
+        return new LoginResponseDto()
         {
             UserFullname = fromJson?.UserFullname,
             IndividFullname = fromJson?.IndividFullname,

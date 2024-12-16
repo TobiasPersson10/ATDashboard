@@ -1,4 +1,5 @@
-﻿using ATDashboard.Models.DTO;
+﻿using System.Text.Json;
+using ATDashboard.Models.DTO;
 using ATDashboard.Models.Requests;
 using ATDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +19,8 @@ public class CustomerController : ControllerBase
         _customerService = customerService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    [HttpGet("CustomerInfo")]
+    public async Task<IActionResult> GetCustomerInfo()
     {
         // Check if logged in
         var token = _authService.GetAccessToken();
@@ -39,9 +40,41 @@ public class CustomerController : ControllerBase
         if (customerInfo is null)
             return NotFound();
 
-        var dto = CustomerInfoDTO.ToDomain(customerInfo);
+        var dto = CustomerInfoDto.ToCustomerInfoDto(customerInfo);
         return Ok(dto);
-        // Call customerService
+    }
+
+    [HttpGet("Invoices")]
+    public async Task<IActionResult> GetInvoices()
+    {
+        var token = _authService.GetAccessToken();
+        if (token is null)
+        {
+            return Unauthorized("Token in not loaded, attempt a login");
+        }
+
+        var invoiceRequest = new InvoiceRequest()
+        {
+            status = 0,
+            DST = token,
+            months = 18,
+            source = "All",
+            customerId = "",
+            utility = "EL_EXT",
+            subscriptionNr = 2581468,
+            maxHitOnPage = 20,
+            pageNumber = 1,
+        };
+
+        var invoiceResponse = await _customerService.GetInvoice(invoiceRequest);
+        if (invoiceResponse is null)
+            return NotFound();
+
+        var invoiceDto = invoiceResponse.InvoiceInfo?.Select(InvoiceDto.ToInvoiceDto).ToList();
+
+        var returnJson = JsonSerializer.Serialize(invoiceDto);
+
+        return Ok(returnJson);
     }
 }
 
