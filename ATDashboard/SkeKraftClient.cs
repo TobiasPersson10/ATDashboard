@@ -18,10 +18,6 @@ public class SkeKraftClient(HttpClient httpClient)
 
     public Task<HttpResponseMessage> GetInvoiceAsync(string uri, InvoiceRequest request, CancellationToken cancellationToken = default)
     {
-        // var json = JsonSerializer.Serialize(request);
-        // var content = new StringContent(json, Encoding.UTF8, "application/json");
-        // var res = httpClient.PostAsync(uri, content, cancellationToken);
-        // return res;
         return httpClient.PostAsJsonAsync(uri, request, cancellationToken);
     }
 }

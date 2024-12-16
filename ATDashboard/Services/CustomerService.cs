@@ -8,7 +8,10 @@ namespace ATDashboard.Services;
 
 public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<CustomerService> logger) : ICustomerService
 {
-    public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request)
+    private const string GetCustomerInfoUri = "GetCustomerInfo";
+    private const string GetInvoicesWithPageingUri = "GetInvoicesWithPageing";
+
+    public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request, CancellationToken cancellationToken = default)
     {
         if (cache.TryGetValue(request.DST, out CustomerInfoResponse? customerInfoResponse))
             return customerInfoResponse;
@@ -16,7 +19,7 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
         HttpResponseMessage response;
         try
         {
-            response = await client.GetCustomerInfoAsync("GetCustomerInfo", request);
+            response = await client.GetCustomerInfoAsync(GetCustomerInfoUri, request, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
         catch (Exception e)
@@ -27,7 +30,7 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
 
         try
         {
-            var customerInfo = await response.Content.ReadFromJsonAsync<CustomerInfoResponse>();
+            var customerInfo = await response.Content.ReadFromJsonAsync<CustomerInfoResponse>(cancellationToken: cancellationToken);
             if (customerInfo != null)
                 cache.Set(request.DST, customerInfo);
             return customerInfo;
@@ -39,7 +42,7 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
         }
     }
 
-    public async Task<InvoiceResponse?> GetInvoice(InvoiceRequest request)
+    public async Task<InvoiceResponse?> GetInvoice(InvoiceRequest request, CancellationToken cancellationToken = default)
     {
         if (cache.TryGetValue(request.DST, out InvoiceResponse? invoiceResponse))
             return invoiceResponse;
@@ -47,7 +50,7 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
         HttpResponseMessage response;
         try
         {
-            response = await client.GetInvoiceAsync("GetInvoicesWithPageing", request);
+            response = await client.GetInvoiceAsync(GetInvoicesWithPageingUri, request, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
         catch (Exception e)
@@ -58,7 +61,7 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
 
         try
         {
-            var invoice = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
+            var invoice = await response.Content.ReadFromJsonAsync<InvoiceResponse>(cancellationToken: cancellationToken);
             if (invoice != null)
                 cache.Set(request.DST, invoice);
             return invoice;
@@ -73,6 +76,6 @@ public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<
 
 public interface ICustomerService
 {
-    Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request);
-    Task<InvoiceResponse?> GetInvoice(InvoiceRequest request);
+    Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request, CancellationToken cancellationToken = default);
+    Task<InvoiceResponse?> GetInvoice(InvoiceRequest request, CancellationToken cancellationToken = default);
 }

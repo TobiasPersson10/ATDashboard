@@ -12,6 +12,7 @@ public class AuthService(SkeKraftClient client, IOptions<ExternalApiSettings> op
     private readonly ExternalApiSettings _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
 
     private const string TokenCacheKey = "AuthTokenDst";
+    private const string LoginUri = "Login";
 
     public async Task<LoginResponse?> LoginAsync(CancellationToken cancellationToken = default)
     {
@@ -23,7 +24,7 @@ public class AuthService(SkeKraftClient client, IOptions<ExternalApiSettings> op
         HttpResponseMessage response;
         try
         {
-            response = await client.LoginAsync("Login", loginRequest, cancellationToken);
+            response = await client.LoginAsync(LoginUri, loginRequest, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
         catch (Exception ex)

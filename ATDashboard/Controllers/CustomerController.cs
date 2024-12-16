@@ -20,7 +20,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("CustomerInfo")]
-    public async Task<IActionResult> GetCustomerInfo()
+    public async Task<IActionResult> GetCustomerInfo(CancellationToken cancellationToken = default)
     {
         var token = _authService.GetAccessToken();
         if (token is null)
@@ -35,7 +35,7 @@ public class CustomerController : ControllerBase
             source = "All",
         };
 
-        var customerInfo = await _customerService.GetCustomerInfo(loginRequest);
+        var customerInfo = await _customerService.GetCustomerInfo(loginRequest, cancellationToken);
         if (customerInfo is null)
             return NotFound();
 
@@ -44,7 +44,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("Invoices")]
-    public async Task<IActionResult> GetInvoices()
+    public async Task<IActionResult> GetInvoices(CancellationToken cancellationToken = default)
     {
         var token = _authService.GetAccessToken();
         if (token is null)
@@ -65,7 +65,7 @@ public class CustomerController : ControllerBase
             pageNumber = 1,
         };
 
-        var invoiceResponse = await _customerService.GetInvoice(invoiceRequest);
+        var invoiceResponse = await _customerService.GetInvoice(invoiceRequest, cancellationToken);
         if (invoiceResponse is null)
             return NotFound();
 
