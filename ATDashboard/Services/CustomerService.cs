@@ -6,54 +6,68 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ATDashboard.Services;
 
-public class CustomerService : ICustomerService
+public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<CustomerService> logger) : ICustomerService
 {
-    private readonly SkeKraftClient _client;
-    private readonly IMemoryCache _cache;
-
-    public CustomerService(SkeKraftClient client, IMemoryCache cache)
-    {
-        _client = client;
-        _cache = cache;
-    }
-
     public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request)
     {
-        var cached = _cache.TryGetValue(request.DST, out CustomerInfoResponse? customerInfoResponse);
-        if (cached)
+        if (cache.TryGetValue(request.DST, out CustomerInfoResponse? customerInfoResponse))
             return customerInfoResponse;
 
-        var response = await _client.GetCustomerInfoAsync("GetCustomerInfo", request);
-        response.EnsureSuccessStatusCode();
-
-        var json = await response.Content.ReadAsStringAsync();
-
-        var customerInfo = JsonSerializer.Deserialize<CustomerInfoResponse>(json);
-        if (customerInfo != null)
+        HttpResponseMessage response;
+        try
         {
-            _cache.Set(request.DST, customerInfo);
+            response = await client.GetCustomerInfoAsync("GetCustomerInfo", request);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to fetch data for CustomerInfoAsync");
+            return null;
         }
 
-        return customerInfo;
+        try
+        {
+            var customerInfo = await response.Content.ReadFromJsonAsync<CustomerInfoResponse>();
+            if (customerInfo != null)
+                cache.Set(request.DST, customerInfo);
+            return customerInfo;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "JSON Deserialization failed for CustomerInfoAsync");
+            return null;
+        }
     }
 
     public async Task<InvoiceResponse?> GetInvoice(InvoiceRequest request)
     {
-        var cached = _cache.TryGetValue(request.DST, out InvoiceResponse? invoiceResponse);
-        if (cached)
+        if (cache.TryGetValue(request.DST, out InvoiceResponse? invoiceResponse))
             return invoiceResponse;
 
-        var response = await _client.GetInvoiceAsync("GetInvoicesWithPageing", request);
-        response.EnsureSuccessStatusCode();
+        HttpResponseMessage response;
+        try
+        {
+            response = await client.GetInvoiceAsync("GetInvoicesWithPageing", request);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "failed to fetch data for GetInvoice");
+            return null;
+        }
 
-        var json = await response.Content.ReadAsStringAsync();
-
-        var invoice = JsonSerializer.Deserialize<InvoiceResponse>(json);
-
-        if (invoice != null)
-            _cache.Set(request.DST, invoice);
-
-        return invoice;
+        try
+        {
+            var invoice = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
+            if (invoice != null)
+                cache.Set(request.DST, invoice);
+            return invoice;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
 
