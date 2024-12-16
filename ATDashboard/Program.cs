@@ -15,7 +15,7 @@ public class Program
         builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApi"));
         // Add services to the container.
         builder.Services.AddMemoryCache();
-        builder.Services.AddHttpClient<SkeKraftClient>(
+        builder.Services.AddHttpClient<ISkeKraftClient, SkeKraftClient>(
             (serviceprovider, client) =>
             {
                 var externalApiSettings = serviceprovider.GetRequiredService<IOptions<ExternalApiSettings>>().Value;
@@ -39,11 +39,11 @@ public class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        // if (app.Environment.IsDevelopment())
+        // {
+        //     app.UseSwagger();
+        //     app.UseSwaggerUI();
+        // }
 
         app.UseHttpsRedirection();
 

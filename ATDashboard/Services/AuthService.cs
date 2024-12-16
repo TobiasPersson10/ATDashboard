@@ -7,7 +7,8 @@ using Microsoft.Extensions.Options;
 
 namespace ATDashboard.Services;
 
-public class AuthService(SkeKraftClient client, IOptions<ExternalApiSettings> options, IMemoryCache cache, ILogger<AuthService> logger) : IAuthService
+public class AuthService(ISkeKraftClient client, IOptions<ExternalApiSettings> options, IMemoryCache cache, ILogger<AuthService> logger)
+    : IAuthService
 {
     private readonly ExternalApiSettings _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
 

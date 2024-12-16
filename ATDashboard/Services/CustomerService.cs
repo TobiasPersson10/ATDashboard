@@ -6,7 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ATDashboard.Services;
 
-public class CustomerService(SkeKraftClient client, IMemoryCache cache, ILogger<CustomerService> logger) : ICustomerService
+public class CustomerService(ISkeKraftClient client, IMemoryCache cache, ILogger<CustomerService> logger) : ICustomerService
 {
     private const string GetCustomerInfoUri = "GetCustomerInfo";
     private const string GetInvoicesWithPageingUri = "GetInvoicesWithPageing";
