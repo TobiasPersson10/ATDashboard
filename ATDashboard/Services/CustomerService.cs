@@ -40,14 +40,7 @@ public class CustomerService : ICustomerService
 
         var json = await response.Content.ReadAsStringAsync();
 
-        var options = new JsonSerializerOptions
-        {
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(
-                System.Text.Unicode.UnicodeRanges.All
-            ),
-        };
-
-        var invoice = JsonSerializer.Deserialize<InvoiceResponse>(json, options);
+        var invoice = JsonSerializer.Deserialize<InvoiceResponse>(json);
 
         if (invoice != null)
             _cache.Set(request.DST, invoice);

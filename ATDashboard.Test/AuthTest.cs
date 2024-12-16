@@ -40,6 +40,6 @@ public class Tests
         var value = result as OkObjectResult;
         Assert.That(value?.Value, Is.Not.Null);
         Assert.Equals(value?.StatusCode, HttpStatusCode.OK);
-        Assert.That(value.Value, Is.InstanceOf<LoginResponseDTO>());
+        Assert.That(value.Value, Is.InstanceOf<LoginResponseDto>());
     }
 }
