@@ -30,9 +30,7 @@ public class Tests
             IndividFullname = "Namn namnsson",
         };
 
-        authServiceMock
-            .Setup(x => x.LoginAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedResponse);
+        authServiceMock.Setup(x => x.LoginAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockedResponse);
 
         var controller = new AuthController(authServiceMock.Object);
 

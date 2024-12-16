@@ -19,6 +19,10 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerInfoResponse?> GetCustomerInfo(CustomerInfoRequest request)
     {
+        var cached = _cache.TryGetValue(request.DST, out CustomerInfoResponse? customerInfoResponse);
+        if (cached)
+            return customerInfoResponse;
+
         var response = await _client.GetCustomerInfoAsync("GetCustomerInfo", request);
         response.EnsureSuccessStatusCode();
 
@@ -35,6 +39,10 @@ public class CustomerService : ICustomerService
 
     public async Task<InvoiceResponse?> GetInvoice(InvoiceRequest request)
     {
+        var cached = _cache.TryGetValue(request.DST, out InvoiceResponse? invoiceResponse);
+        if (cached)
+            return invoiceResponse;
+
         var response = await _client.GetInvoiceAsync("GetInvoicesWithPageing", request);
         response.EnsureSuccessStatusCode();
 

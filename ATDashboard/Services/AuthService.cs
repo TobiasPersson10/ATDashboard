@@ -15,11 +15,7 @@ public class AuthService : IAuthService
 
     private const string TokenCacheKey = "AuthTokenDst";
 
-    public AuthService(
-        SkeKraftClient client,
-        IOptions<ExternalApiSettings> options,
-        IMemoryCache cache
-    )
+    public AuthService(SkeKraftClient client, IOptions<ExternalApiSettings> options, IMemoryCache cache)
     {
         _client = client;
         _externalApiSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
@@ -28,28 +24,21 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse?> LoginAsync(CancellationToken cancellationToken = default)
     {
-        var loginRequest = new LoginRequest
-        {
-            username = _externalApiSettings.UserName,
-            password = _externalApiSettings.Password,
-        };
+        var loginRequest = new LoginRequest { username = _externalApiSettings.UserName, password = _externalApiSettings.Password };
 
         try
         {
+            var cached = _cache.TryGetValue(TokenCacheKey, out LoginResponse? data);
+            if (cached)
+                return data;
+
             var response = await _client.LoginAsync("Login", loginRequest, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await LogErrorAsync(response);
-                //throw error
-            }
-
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(json);
             if (loginResponse is not null)
-                _cache.Set(TokenCacheKey, loginResponse.Dst);
+                _cache.Set(TokenCacheKey, loginResponse);
             return loginResponse;
         }
         catch (Exception ex)
@@ -62,8 +51,8 @@ public class AuthService : IAuthService
 
     public string? GetAccessToken()
     {
-        _cache.TryGetValue(TokenCacheKey, out string? token);
-        return token;
+        _cache.TryGetValue(TokenCacheKey, out LoginResponse? loginResponse);
+        return loginResponse?.Dst;
     }
 
     private static async Task LogErrorAsync(HttpResponseMessage response)

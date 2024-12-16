@@ -22,7 +22,6 @@ public class CustomerController : ControllerBase
     [HttpGet("CustomerInfo")]
     public async Task<IActionResult> GetCustomerInfo()
     {
-        // Check if logged in
         var token = _authService.GetAccessToken();
         if (token is null)
         {

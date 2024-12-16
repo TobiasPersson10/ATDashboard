@@ -12,17 +12,13 @@ public class Program
 
         // Add configuration
 
-        builder.Services.Configure<ExternalApiSettings>(
-            builder.Configuration.GetSection("ExternalApi")
-        );
+        builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApi"));
         // Add services to the container.
         builder.Services.AddMemoryCache();
         builder.Services.AddHttpClient<SkeKraftClient>(
             (serviceprovider, client) =>
             {
-                var externalApiSettings = serviceprovider
-                    .GetRequiredService<IOptions<ExternalApiSettings>>()
-                    .Value;
+                var externalApiSettings = serviceprovider.GetRequiredService<IOptions<ExternalApiSettings>>().Value;
                 if (string.IsNullOrEmpty(externalApiSettings.BaseUrl))
                 {
                     throw new InvalidOperationException("External API BaseUrl is not configured.");
