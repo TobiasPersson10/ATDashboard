@@ -8,21 +8,12 @@ namespace ATDashboard.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CustomerController : ControllerBase
+public class CustomerController(IAuthService authService, ICustomerService customerService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-    private readonly ICustomerService _customerService;
-
-    public CustomerController(IAuthService authService, ICustomerService customerService)
-    {
-        _authService = authService;
-        _customerService = customerService;
-    }
-
     [HttpGet("CustomerInfo")]
     public async Task<IActionResult> GetCustomerInfo(CancellationToken cancellationToken = default)
     {
-        var token = _authService.GetAccessToken();
+        var token = authService.GetAccessToken();
         if (token is null)
         {
             return Unauthorized("Token is not loaded, attempt a login");
@@ -35,18 +26,18 @@ public class CustomerController : ControllerBase
             source = "All",
         };
 
-        var customerInfo = await _customerService.GetCustomerInfo(loginRequest, cancellationToken);
+        var customerInfo = await customerService.GetCustomerInfo(loginRequest, cancellationToken);
         if (customerInfo is null)
             return NotFound();
 
-        var dto = CustomerInfoDto.ToCustomerInfoDto(customerInfo);
-        return Ok(dto);
+        var customerInfoDto = CustomerInfoDto.ToCustomerInfoDto(customerInfo);
+        return Ok(customerInfoDto);
     }
 
     [HttpGet("Invoices")]
     public async Task<IActionResult> GetInvoices(CancellationToken cancellationToken = default)
     {
-        var token = _authService.GetAccessToken();
+        var token = authService.GetAccessToken();
         if (token is null)
         {
             return Unauthorized("Token in not loaded, attempt a login");
@@ -65,15 +56,12 @@ public class CustomerController : ControllerBase
             pageNumber = 1,
         };
 
-        var invoiceResponse = await _customerService.GetInvoice(invoiceRequest, cancellationToken);
+        var invoiceResponse = await customerService.GetInvoice(invoiceRequest, cancellationToken);
         if (invoiceResponse is null)
             return NotFound();
 
-        var invoiceDto = invoiceResponse.InvoiceInfo?.Select(InvoiceDto.ToInvoiceDto).ToList();
-
-        var returnJson = JsonSerializer.Serialize(invoiceDto);
-
-        return Ok(returnJson);
+        var invoiceDtoList = invoiceResponse.InvoiceInfo?.Select(InvoiceDto.ToInvoiceDto).ToList();
+        return Ok(invoiceDtoList);
     }
 }
 
