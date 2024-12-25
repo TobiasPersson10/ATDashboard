@@ -4,3 +4,9 @@
     build:
       context: .
       dockerfile: ATDashboard/Dockerfile
+
+  dashboardui:
+    image: dashboardui
+    build:
+      context: .
+      dockerfile: dashboardUI/Dockerfile
